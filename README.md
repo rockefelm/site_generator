@@ -1,0 +1,1 @@
+Ideally this program should be taking a provided "markdown file" and, in turn generating a static site from its contents. 
