@@ -1,8 +1,8 @@
 import unittest
-import re
 from textnode import *
 from htmlnode import *
 from splitdelimiter import *
+from extractors import extract_markdown_images, extract_markdown_links
 
 def text_node_to_html_node(text_node):
     """
@@ -23,23 +23,28 @@ def text_node_to_html_node(text_node):
     else:
         raise ValueError(f"Unknown TextType: {text_node.text_type}")
     
-def extract_markdown_images(text):
-    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
-    matches = re.findall(pattern, text)
-    return matches
-
-def extract_markdown_links(text):
-    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
-    matches = re.findall(pattern, text)
-    return matches
 
 def main():
     
     
-    matches = extract_markdown_images(
-        "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
-    )
-    print(matches)
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode(
+                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
+        
 
 main()  
 
