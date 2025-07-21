@@ -1,7 +1,9 @@
 import unittest
 from htmlnode import *
 from textnode import *
-from main import *
+from text_node_to_html_node import text_node_to_html_node
+from splitdelimiter import split_nodes_image, split_nodes_link, split_nodes_delimiter
+from text_to_textnodes import text_to_textnodes
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_multiple(self):
@@ -65,3 +67,18 @@ class TestHTMLNode(unittest.TestCase):
             new_nodes,
         )
         print(new_nodes)
+
+    def test_text_to_textnodes_basic(self):
+        text = "Hello **bold** and `code` and a [link](example.com)!"
+        nodes = text_to_textnodes(text)
+        expected = [
+            TextNode("Hello ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("code", TextType.CODE),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "example.com"),
+            TextNode("!", TextType.TEXT),
+        ]
+        self.assertEqual(nodes, expected)
+        print(nodes)
