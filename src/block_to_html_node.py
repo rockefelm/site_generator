@@ -14,8 +14,8 @@ def block_to_html_node(block):
     elif block_type == BlockType.PARAGRAPH:
         return HTMLNode("p", None, text_to_children(block))
     elif block_type == BlockType.HEADING:
-        heading_level = get_heading_level(block)
-        return HTMLNode(f"h{heading_level}", None, text_to_children(block))
+        level, new_block = get_heading_level(block)
+        return HTMLNode(f"h{level}", None, text_to_children(new_block))
     elif block_type == BlockType.QUOTE:
         cleaned_block = strip_blockquote_markers(block)
         return HTMLNode("blockquote", None, text_to_children(cleaned_block))
