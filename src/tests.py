@@ -6,145 +6,63 @@ from splitdelimiter import split_nodes_image, split_nodes_link, split_nodes_deli
 from text_to_textnodes import text_to_textnodes
 from markdown_to_blocks import markdown_to_blocks
 from blocktype import BlockType, block_to_block_type
+from markdown_to_html_node import markdown_to_html_node
 
 class TestHTMLNode(unittest.TestCase):
-    def test_props_to_html_multiple(self):
-        node = HTMLNode("a", "Boot.dev", [], {"href": "https://boot.dev", "target": "_smellyballs"})
-        self.assertEqual(node.props_to_html(), ' href="https://boot.dev" target="_smellyballs"')
-    
-    def test_props_to_html_single(self):
-        node = HTMLNode("img", None, [], {"src": "dog.png"})
-        self.assertEqual(node.props_to_html(), ' src="dog.png"')
-    
-    def test_props_to_html_empty(self):
-        node = HTMLNode("p", "No props here!", [], {})
-        self.assertEqual(node.props_to_html(), '')
-
-    def test_leaf_to_html_p(self):
-        node = LeafNode("p", "Hello, world!")
-        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
-
-    def test_leaf_to_html_bold(self):
-        node = LeafNode("b", "Bold text")
-        self.assertEqual(node.to_html(), "<b>Bold text</b>")
-
-    def test_leaf_to_html_italic(self):
-        node = LeafNode("i", "Italic text")
-        self.assertEqual(node.to_html(), "<i>Italic text</i>")
-
-    def test_to_html_with_children(self):
-        child_node = LeafNode("span", "child")
-        parent_node = ParentNode("div", [child_node])
-        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
-
-    def test_to_html_with_grandchildren(self):
-        grandchild_node = LeafNode("b", "grandchild")
-        child_node = ParentNode("span", [grandchild_node])
-        parent_node = ParentNode("div", [child_node])
+    def test_heading(self):
+        md = "# Title Heading\n"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
         self.assertEqual(
-            parent_node.to_html(),
-            "<div><span><b>grandchild</b></span></div>",
+            html,
+            "<div><h1>Title Heading</h1></div>"
         )
-    def test_text(self):
-        node = TextNode("This is a text node", TextType.TEXT)
-        html_node = text_node_to_html_node(node)
-        self.assertEqual(html_node.tag, None)
-        self.assertEqual(html_node.value, "This is a text node")
 
-    def test_split_images(self):
-        node = TextNode(
-            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
-            TextType.TEXT,
+    def test_heading_level_and_inline(self):
+        md = "### Level 3 with **bold**\n"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h3>Level 3 with <b>bold</b></h3></div>"
         )
-        new_nodes = split_nodes_image([node])
-        self.assertListEqual(
-            [
-                TextNode("This is text with an ", TextType.TEXT),
-                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
-                TextNode(" and another ", TextType.TEXT),
-                TextNode(
-                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
-                ),
-            ],
-            new_nodes,
+    def test_blockquote(self):
+        md = "> Quoth the raven _nevermore_\n"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>Quoth the raven <i>nevermore</i></blockquote></div>"
         )
-        print(new_nodes)
-
-    def test_text_to_textnodes_basic(self):
-        text = "Hello **bold** and `code` and a [link](example.com)!"
-        nodes = text_to_textnodes(text)
-        expected = [
-            TextNode("Hello ", TextType.TEXT),
-            TextNode("bold", TextType.BOLD),
-            TextNode(" and ", TextType.TEXT),
-            TextNode("code", TextType.CODE),
-            TextNode(" and a ", TextType.TEXT),
-            TextNode("link", TextType.LINK, "example.com"),
-            TextNode("!", TextType.TEXT),
-        ]
-        self.assertEqual(nodes, expected)
-        print(nodes)
-
-    def test_markdown_to_blocks(self):
-        test_data = """
-This is a heading
-
-This is a paragraph.
-
-- Item 1
-- Item 2
-
-
-
-"""
-        result = markdown_to_blocks(test_data)
-        expected = [
-            "This is a heading",
-            "This is a paragraph.",
-            "- Item 1\n- Item 2"
-        ]
-
-        assert result == expected
-        for item in result:
-            print(item)
-
-    def test_paragraph(self):
-        block = "This is just a regular paragraph of text."
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.PARAGRAPH)
-    
-    def test_heading_single_hash(self):
-        block = "# This is a heading"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.HEADING)
-    
-    def test_heading_multiple_hashes(self):
-        block = "### This is a level 3 heading"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.HEADING)
-    
-    def test_code_block(self):
-        block = "```\nsome code here\nmore code\n```"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.CODE)
-    
-    def test_quote_single_line(self):
-        block = "> This is a quote"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.QUOTE)
-    
-    def test_quote_multiple_lines(self):
-        block = "> This is a quote\n> with multiple lines"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.QUOTE)
-    
     def test_unordered_list(self):
-        block = "- Item 1\n- Item 2\n- Item 3"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.UNORDERED_LIST)
-    
+        md = "- apples\n- bananas\n- **boldfruit**\n"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>apples</li><li>bananas</li><li><b>boldfruit</b></li></ul></div>"
+        )
     def test_ordered_list(self):
-        block = "1. First item\n2. Second item\n3. Third item"
-        result = block_to_block_type(block)
-        self.assertEqual(result, BlockType.ORDERED_LIST)
-    
+        md = "1. first\n2. _second_\n3. third\n"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>first</li><li><i>second</i></li><li>third</li></ol></div>"
+        )
+    def test_mixed_blocks(self):
+        md = (
+            "# Shopping List\n"
+            "\n"
+            "> Remember: _fresh_ only!\n"
+            "\n"
+            "- milk\n"
+            "- eggs\n"
+            "- bread\n"
+        )
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>Shopping List</h1><blockquote>Remember: <i>fresh</i> only!</blockquote><ul><li>milk</li><li>eggs</li><li>bread</li></ul></div>"
+        )

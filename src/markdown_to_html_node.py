@@ -8,7 +8,7 @@ def markdown_to_html_node(markdown):
     html_nodes = []
     for block in blocks:
         html_nodes.append(block_to_html_node(block))
-    parent_node = HTMLNode("div", None, html_nodes)
+    parent_node = ParentNode("div", html_nodes)
     return parent_node
 
 
