@@ -4,6 +4,7 @@ from textnode import *
 from text_node_to_html_node import text_node_to_html_node
 from splitdelimiter import split_nodes_image, split_nodes_link, split_nodes_delimiter
 from text_to_textnodes import text_to_textnodes
+from markdown_to_blocks import markdown_to_blocks
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_multiple(self):
@@ -82,3 +83,27 @@ class TestHTMLNode(unittest.TestCase):
         ]
         self.assertEqual(nodes, expected)
         print(nodes)
+
+    def test_markdown_to_blocks(self):
+        test_data = """
+This is a heading
+
+This is a paragraph.
+
+- Item 1
+- Item 2
+
+
+
+"""
+        result = markdown_to_blocks(test_data)
+        expected = [
+            "This is a heading",
+            "This is a paragraph.",
+            "- Item 1\n- Item 2"
+        ]
+
+        assert result == expected
+        for item in result:
+            print(item)
+    
