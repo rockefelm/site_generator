@@ -5,6 +5,7 @@ from text_node_to_html_node import text_node_to_html_node
 from splitdelimiter import split_nodes_image, split_nodes_link, split_nodes_delimiter
 from text_to_textnodes import text_to_textnodes
 from markdown_to_blocks import markdown_to_blocks
+from blocktype import BlockType, block_to_block_type
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_multiple(self):
@@ -106,4 +107,44 @@ This is a paragraph.
         assert result == expected
         for item in result:
             print(item)
+
+    def test_paragraph(self):
+        block = "This is just a regular paragraph of text."
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+    
+    def test_heading_single_hash(self):
+        block = "# This is a heading"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.HEADING)
+    
+    def test_heading_multiple_hashes(self):
+        block = "### This is a level 3 heading"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.HEADING)
+    
+    def test_code_block(self):
+        block = "```\nsome code here\nmore code\n```"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.CODE)
+    
+    def test_quote_single_line(self):
+        block = "> This is a quote"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.QUOTE)
+    
+    def test_quote_multiple_lines(self):
+        block = "> This is a quote\n> with multiple lines"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.QUOTE)
+    
+    def test_unordered_list(self):
+        block = "- Item 1\n- Item 2\n- Item 3"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.UNORDERED_LIST)
+    
+    def test_ordered_list(self):
+        block = "1. First item\n2. Second item\n3. Third item"
+        result = block_to_block_type(block)
+        self.assertEqual(result, BlockType.ORDERED_LIST)
     
